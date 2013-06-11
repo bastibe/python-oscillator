@@ -1,8 +1,9 @@
 import sys
+import time
 from pyaudio import PyAudio, paFloat32, paContinue
 import numpy
 from PySide import QtCore, QtGui
-from matplotlib.pyplot import Figure
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 
 
@@ -58,6 +59,11 @@ class MainWindow(QtGui.QMainWindow):
         layout.addLayout(horizontal_layout)
         self.setCentralWidget(central_widget)
 
+    def closeEvent(self, event):
+        self.stream.close()
+        # wait for audio processing to clear its buffers
+        time.sleep(0.1)
+
     def change_api_index(self, api_index):
         self.api_index = api_index
         self.restart_audio()
@@ -84,8 +90,6 @@ class MainWindow(QtGui.QMainWindow):
         self.figure.create_plots(self.num_channels)
 
     def audio_callback(self, in_data, frame_count, time_info, status_flags):
-        if status_flags:
-            print(status_flags)
         data = numpy.fromstring(in_data, dtype=numpy.float32)
         data = numpy.reshape(data, (len(data)/self.num_channels,self.num_channels))
         self.figure.draw(data)
@@ -95,23 +99,32 @@ class MainWindow(QtGui.QMainWindow):
 class FigureWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(FigureWidget, self).__init__(parent)
-        self.fig = Figure()
-        self.setMinimumSize(100,100)
+        self.fig = plt.Figure()
+        self.setMinimumSize(500,300)
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.canvas.setParent(self)
         self.create_plots(1)
-        self.canvas.draw()
+        # set the plot background color to the window background color
+        color = QtGui.QPalette().window().color()
+        self.fig.set_facecolor((color.redF(), color.greenF(), color.blueF()))
+        self.canDraw = True
 
     def create_plots(self, num_plots):
+        self.canDraw = False
         self.fig.clear()
-        self.axes = []
-        self.lines = []
         self.axes = [self.fig.add_subplot(1,num_plots,n)
                      for n in range(num_plots)]
         self.lines = [ax.plot(numpy.zeros(1024))[0] for ax in self.axes]
         for ax in self.axes:
             ax.set_ylim((-1,1))
             ax.set_xlim((0,1024))
+            ax.spines['bottom'].set_position(('outward', 5))
+            ax.spines['left'].set_position(('outward', 5))
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
+            self.fig.tight_layout()
+        self.canvas.draw()
+        self.canDraw = True
 
     def resizeEvent(self, event):
         self.fig.set_size_inches(self.width()/80, self.height()/80)
@@ -122,6 +135,7 @@ class FigureWidget(QtGui.QWidget):
         self.resizeEvent(None)
 
     def draw(self, data):
+        if not self.canDraw: return()
         for n in range(data.shape[1]):
             self.lines[n].set_ydata(data[:,n])
             self.axes[n].draw_artist(self.axes[n].patch)
