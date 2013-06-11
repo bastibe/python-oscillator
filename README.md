@@ -9,6 +9,8 @@ Actually, this program was written to investigate two things:
 - Whether Matplotlib is fast enough for real time use
 - Whether pyaudio is convenient enough for prototyping
 
+![Python-Oscillator](https://raw.github.com/bastibe/python-oscillator/master/python-oscillator.png)
+
 [pyaudio]: http://people.csail.mit.edu/hubert/pyaudio/
 [matplotlib]: http://matplotlib.org/
 [pyside]: http://qt-project.org/wiki/PySide
