@@ -2,18 +2,23 @@ import sys
 import time
 from pyaudio import PyAudio, paFloat32, paContinue
 import numpy
-from PySide import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 
 
-"""
-A simple oscillator that shows the waveform of whatever audio is playing on a
-sound card.
+"""A simple oscillator that shows the waveform of whatever audio is
+playing on a sound card.
 
-This is meant to be a testing tool for sound cards and pyaudio. In writing
-this, I realized that pyaudio needs to be updated to something more pythonic.
-I am sick of juggling device indices and API indices.
+This is meant to be a testing tool for sound cards and pyaudio. In
+writing this, I realized that pyaudio needs to be updated to something
+more pythonic. I am sick of juggling device indices and API indices.
+
+Note that this is using PyQt4. You must set your Matplotlib to use
+PyQt4 as well. If you have set your Matplotlib to use PySide instead,
+just change the import statement above--no other code changes are
+necessary.
+
 """
 
 
