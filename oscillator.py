@@ -148,7 +148,7 @@ class FigureWidget(QtGui.QWidget):
         """ Create enough subplots to hold `num_plots` plots. """
         self.canDraw = False
         self.fig.clear()
-        self.axes = [self.fig.add_subplot(1,num_plots,n)
+        self.axes = [self.fig.add_subplot(1,num_plots,n+1)
                      for n in range(num_plots)]
         self.lines = [ax.plot(numpy.zeros(1024))[0] for ax in self.axes]
         for ax in self.axes:
